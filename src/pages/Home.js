@@ -4,7 +4,7 @@ import Calendar from "../components/Calendar";
 
 const Home = () => {
   const [songs, setSongs] = useState([]); // Initialize as an empty array
-  const daysWithSongs = [1, 22, 26];
+  const daysWithSongs = [];
 
   // Fetch songs on component mount
   useEffect(() => {

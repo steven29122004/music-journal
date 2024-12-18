@@ -1,52 +1,91 @@
 import React, { useState } from "react";
 
-const SongModal = ({ isOpen, onClose, onSave, song }) => {
-    const [formData, setFormData] = useState({
-      name: song?.name || "",
-      artist: song?.artist || "",
-      mood: song?.mood || "",
-      tags: song?.tags?.join(", ") || "",
-      journal: song?.journal || "",
-      file: null,
-    });
-  
-    const handleChange = (e) => {
-      const { name, value, files } = e.target;
-      setFormData({
-        ...formData,
-        [name]: files ? files[0] : value, // Handle file input separately
-      });
-    };
-  
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      const form = new FormData();
-      form.append("name", formData.name);
-      form.append("artist", formData.artist);
-      form.append("mood", formData.mood);
-      form.append("tags", formData.tags);
-      form.append("journal", formData.journal);
-      if (formData.file) form.append("file", formData.file);
-  
-      await onSave(form); // Send data to the backend
-      onClose();
-    };
-  
-    return isOpen ? (
-      <div className="modal">
-        <form onSubmit={handleSubmit} encType="multipart/form-data">
-          <h2>{song ? "Edit Song" : "Add Song"}</h2>
-          <input name="name" placeholder="Song Name" value={formData.name} onChange={handleChange} required />
-          <input name="artist" placeholder="Artist" value={formData.artist} onChange={handleChange} required />
-          <input name="mood" placeholder="Mood" value={formData.mood} onChange={handleChange} required />
-          <input name="tags" placeholder="Tags (comma-separated)" value={formData.tags} onChange={handleChange} required />
-          <textarea name="journal" placeholder="Journal Entry" value={formData.journal} onChange={handleChange} required />
-          <input type="file" name="file" accept="audio/*" onChange={handleChange} required={!song} />
-          <button type="submit">{song ? "Save Changes" : "Add Song"}</button>
-          <button type="button" onClick={onClose}>Cancel</button>
-        </form>
-      </div>
-    ) : null;
+const SongModal = ({ songData, onClose, onSave }) => {
+  const [formData, setFormData] = useState({ ...songData, file: null });
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === "file") {
+      setFormData({ ...formData, file: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
-  
-  export default SongModal;
+
+  const handleSave = async () => {
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("artist", formData.artist);
+    formDataToSend.append("mood", formData.mood);
+    formDataToSend.append("tags", formData.tags);
+    formDataToSend.append("journal", formData.journal);
+    if (formData.file) {
+      formDataToSend.append("file", formData.file);
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/songs/addSong", {
+        method: "POST",
+        body: formDataToSend,
+      });
+
+      if (!response.ok) throw new Error("Failed to add song");
+
+      const newSong = await response.json();
+      onSave(newSong); // Notify parent to refresh songs
+    } catch (error) {
+      console.error("Error saving song:", error.message);
+    }
+  };
+
+  return (
+    <div
+      className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black bg-opacity-50 z-[9999]"
+      style={{ pointerEvents: "all" }}
+    >
+      <div className="relative bg-white text-black p-8 rounded-lg shadow-lg w-full max-w-lg">
+        <h2 className="text-3xl font-bold mb-6">{songData.name ? "Edit Song" : "Add Song"}</h2>
+
+        {/* Input Fields */}
+        <label className="block mb-2">Name</label>
+        <input className="w-full p-2 border mb-4" name="name" value={formData.name} onChange={handleChange} />
+
+        <label className="block mb-2">Artist</label>
+        <input className="w-full p-2 border mb-4" name="artist" value={formData.artist} onChange={handleChange} />
+
+        <label className="block mb-2">Mood</label>
+        <input className="w-full p-2 border mb-4" name="mood" value={formData.mood} onChange={handleChange} />
+
+        <label className="block mb-2">Tags</label>
+        <input className="w-full p-2 border mb-4" name="tags" value={formData.tags} onChange={handleChange} />
+
+        <label className="block mb-2">Journal</label>
+        <textarea
+          className="w-full p-2 border mb-4"
+          name="journal"
+          rows="3"
+          value={formData.journal}
+          onChange={handleChange}
+        ></textarea>
+
+        <label className="block mb-2">Upload MP3 File</label>
+        <input className="w-full p-2 border mb-4" type="file" name="file" onChange={handleChange} />
+
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-4">
+          <button className="text-gray-500 hover:text-gray-700" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+            onClick={handleSave}
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SongModal;
