@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const SongModal = ({ songData, onClose, onSave }) => {
   const [formData, setFormData] = useState({ ...songData, file: null });
@@ -12,33 +13,48 @@ const SongModal = ({ songData, onClose, onSave }) => {
     }
   };
 
-  const handleSave = async () => {
+ const handleSave = async () => {
     const formDataToSend = new FormData();
     formDataToSend.append("name", formData.name);
     formDataToSend.append("artist", formData.artist);
     formDataToSend.append("mood", formData.mood);
     formDataToSend.append("tags", formData.tags);
     formDataToSend.append("journal", formData.journal);
+    formDataToSend.append("date", formData.date); // Add the date field
     if (formData.file) {
-      formDataToSend.append("file", formData.file);
+        formDataToSend.append("file", formData.file);
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/songs/addSong", {
-        method: "POST",
-        body: formDataToSend,
-      });
+        const endpoint = formData._id
+          ? `http://localhost:5000/api/songs/editSong/${formData._id}`
+          : "http://localhost:5000/api/songs/addSong";
 
-      if (!response.ok) throw new Error("Failed to add song");
+        const method = formData._id ? "PUT" : "POST";
 
-      const newSong = await response.json();
-      onSave(newSong); // Notify parent to refresh songs
+        const response = await fetch(endpoint, {
+          method,
+          body: formDataToSend,
+        });
+
+        if (!response.ok) throw new Error(`Failed to ${formData._id ? "edit" : "add"} song`);
+
+        const updatedSong = await response.json();
+        onSave(updatedSong); // Notify parent to refresh songs
     } catch (error) {
-      console.error("Error saving song:", error.message);
+        console.error(`Error ${formData._id ? "editing" : "saving"} song:`, error.message);
     }
-  };
+};
+
 
   return (
+    <motion.div
+        key="day"
+        initial={{ opacity: 0, y: 0 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.3 }}
+      >
     <div
       className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black bg-opacity-50 z-[9999]"
       style={{ pointerEvents: "all" }}
@@ -68,8 +84,17 @@ const SongModal = ({ songData, onClose, onSave }) => {
           onChange={handleChange}
         ></textarea>
 
-        <label className="block mb-2">Upload MP3 File</label>
-        <input className="w-full p-2 border mb-4" type="file" name="file" onChange={handleChange} />
+        {!formData._id && (
+          <>
+            <label className="block mb-2">Upload MP3 File</label>
+            <input
+              className="w-full p-2 border mb-4"
+              type="file"
+              name="file"
+              onChange={handleChange}
+            />
+          </>
+        )}
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-4">
@@ -85,6 +110,7 @@ const SongModal = ({ songData, onClose, onSave }) => {
         </div>
       </div>
     </div>
+    </motion.div>
   );
 };
 

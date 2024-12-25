@@ -16,14 +16,16 @@ const Calendar = ({ daysWithSongs }) => {
     try {
       const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
         .toString()
-        .padStart(2, "0")}-${day.toString().padStart(2, "0")}`; // YYYY-MM-DD
+        .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
       const response = await fetch(`http://localhost:5000/api/songs/getSongs?date=${formattedDate}`);
       const data = await response.json();
-      setSongsForSelectedDay(data);
+      setSongsForSelectedDay(data); // Only songs for the selected day
     } catch (error) {
       console.error("Error fetching songs:", error);
     }
   };
+  
+  
 
   const handleDayClick = (day) => {
     setSelectedDay(day);
@@ -164,18 +166,20 @@ const Calendar = ({ daysWithSongs }) => {
       </AnimatePresence>
 
       <AnimatePresence>
-        {selectedDay && (
-          <DayViewSlider
-            key="slider"
-            selectedDay={selectedDay}
-            songs={songsForSelectedDay}
-            onClose={() => setSelectedDay(null)}
-            onEdit={() => {}}
-            onDelete={() => {}}
-            onAdd={() => {}}
-          />
-        )}
-      </AnimatePresence>
+  {selectedDay && (
+    <DayViewSlider
+      key="slider"
+      selectedDay={selectedDay}
+      currentDate={currentDate} // Pass the currentDate prop here
+      songs={songsForSelectedDay}
+      onClose={() => setSelectedDay(null)}
+      onEdit={() => {}}
+      onDelete={() => {}}
+      onAdd={() => {}}
+    />
+  )}
+</AnimatePresence>
+
     </div>
   );
 };
