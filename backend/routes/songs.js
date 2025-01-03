@@ -49,7 +49,6 @@ router.post("/addSong", upload.single("file"), async (req, res) => {
   }
 });
 
-
 // Get songs
 router.get("/getSongs", async (req, res) => {
   try {
@@ -60,73 +59,21 @@ router.get("/getSongs", async (req, res) => {
   }
 });
 
-// Edit songs
-router.put("/editSong/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const updatedData = req.body;
-      const song = await Song.findByIdAndUpdate(id, updatedData, { new: true });
-      if (!song) return res.status(404).json({ message: "Song not found" });
-      res.status(200).json(song);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-});
+// Filter Songs
+router.get("/filterSongs", async (req, res) => {
+  const { mood, tags, startDate, endDate } = req.query;
 
-// Delete songs
-const fs = require("fs");
-router.delete("/deleteSong/:id", async (req, res) => {
+  const query = {};
+  if (mood) query.mood = mood;
+  if (tags) query.tags = { $in: tags.split(",") }; // Match any of the tags
+  if (startDate && endDate) query.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
+
   try {
-    const { id } = req.params;
-    const song = await Song.findByIdAndDelete(id);
-    if (!song) return res.status(404).json({ message: "Song not found" });
-
-    // Remove the file from the server
-    if (song.filePath) {
-      fs.unlink(song.filePath, (err) => {
-        if (err) console.error("Error deleting file:", err.message);
-      });
-    }
-
-    res.status(200).json({ message: "Song deleted successfully" });
+    const songs = await Song.find(query);
+    res.status(200).json(songs);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
-// Filter Songs
-router.get("/filterSongs", async (req, res) => {
-    const { mood, tags, startDate, endDate } = req.query;
-  
-    const query = {};
-    if (mood) query.mood = mood;
-    if (tags) query.tags = { $in: tags.split(",") }; // Match any of the tags
-    if (startDate && endDate) query.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
-  
-    try {
-      const songs = await Song.find(query);
-      res.status(200).json(songs);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-});
-  
-// Create playlist according to metadata
-router.get("/createPlaylist", async (req, res) => {
-    const { mood, tags, startDate, endDate } = req.query;
-  
-    const query = {};
-    if (mood) query.mood = mood;
-    if (tags) query.tags = { $in: tags.split(",") };
-    if (startDate && endDate) query.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
-  
-    try {
-      const playlist = await Song.find(query);
-      res.status(200).json(playlist);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-});
-  
 
 module.exports = router;

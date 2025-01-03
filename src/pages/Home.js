@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Calendar from "../components/Calendar";
 
-
 const Home = () => {
   const [songs, setSongs] = useState([]); // Initialize as an empty array
   const daysWithSongs = [];
