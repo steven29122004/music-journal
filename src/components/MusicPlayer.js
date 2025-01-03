@@ -44,7 +44,7 @@ const MusicPlayer = () => {
         newSound.play();
       }
     }
-  }, [currentSong, repeatMode, isPlaying, setIsPlaying]);
+  }, [currentSong, repeatMode]);
 
   useEffect(() => {
     if (sound) {
