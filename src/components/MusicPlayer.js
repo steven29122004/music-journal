@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Howl } from "howler";
-import { FaPlay, FaPause, FaVolumeUp, FaStepBackward, FaStepForward, FaRandom, FaRedo } from "react-icons/fa";
+import { FaPlay, FaPause, FaVolumeUp, FaStepBackward, FaStepForward, FaRandom, FaSyncAlt, FaRedoAlt } from "react-icons/fa";
 import { usePlayer } from "../context/PlayerContext";
 
 const MusicPlayer = () => {
@@ -161,8 +161,14 @@ const MusicPlayer = () => {
             onClick={handleRepeatToggle} 
             className={`text-2xl p-4 rounded-full ${repeatMode > 0 ? 'bg-yellow-500' : 'bg-gradient-to-r from-green-400 via-blue-500 to-purple-600'} shadow-xl transform transition-transform hover:scale-125 hover:text-white ml-2 relative`}
           >
-            <FaRedo className="transition-colors duration-300" />
-            {repeatMode === 2 && <span className="absolute top-0 right-0 text-xs text-white">1</span>}
+            {repeatMode === 2 ? (
+              <>
+                <FaRedoAlt className="transition-colors duration-300" />
+                <span className="absolute top-0 right-0 text-xs text-white">1</span>
+              </>
+            ) : (
+              <FaSyncAlt className="transition-colors duration-300" />
+            )}
           </button>
         </div>
         <div className="flex items-center w-full justify-center">
