@@ -178,15 +178,19 @@ const MusicPlayer = () => {
         </div>
         <div className="flex items-center w-full justify-center">
           <span className="text-blue-800 mr-2">{formatTime(currentTime)}</span>
-          <input
-            type="range"
-            min="0"
-            max={duration}
-            step="0.1"
-            value={currentTime}
-            onChange={handleSeek}
-            className="w-3/4 mx-2"
-          />
+          <div className="relative w-3/4 mx-2">
+            <input
+              type="range"
+              min="0"
+              max={duration}
+              step="0.1"
+              value={currentTime}
+              onChange={handleSeek}
+              className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
+              style={{ background: 'linear-gradient(to right, #4caf50, #2196f3, #ff5722)' }}
+            />
+            <div className="absolute top-0 left-0 h-2 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 rounded-lg" style={{ width: `${(currentTime / duration) * 100}%` }}></div>
+          </div>
           <span className="text-blue-800 ml-2">{formatTime(duration)}</span>
         </div>
       </div>
@@ -199,7 +203,8 @@ const MusicPlayer = () => {
           step="0.01"
           value={volume}
           onChange={changeVolume}
-          className="w-24"
+          className="w-24 h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
+          style={{ background: 'linear-gradient(to right, #4caf50, #2196f3, #ff5722)' }}
         />
       </div>
     </div>
