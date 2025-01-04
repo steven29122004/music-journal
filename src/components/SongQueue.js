@@ -38,7 +38,7 @@ const SongQueue = () => {
           {songQueue.filter(song => song._id !== (currentSong && currentSong._id)).map((song, index) => (
             <li key={song._id} className="mb-3">
               <div className="flex justify-between items-center bg-blue-50 p-4 rounded-lg hover:bg-blue-100 transition duration-300 shadow-md">
-                <span className="text-md text-gray-900">{index + 1}. {song.name} by {song.artist}</span>
+                <span className="text-md text-gray-900">{index + 1}. {song.name}</span>
               </div>
             </li>
           ))}
