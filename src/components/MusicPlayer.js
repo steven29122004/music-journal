@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Howl } from "howler";
-import { FaPlay, FaPause, FaVolumeUp, FaStepBackward, FaStepForward, FaRandom, FaSyncAlt, FaRedoAlt } from "react-icons/fa";
+import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute, FaStepBackward, FaStepForward, FaRandom, FaSyncAlt, FaRedoAlt } from "react-icons/fa";
 import { usePlayer } from "../context/PlayerContext";
 
 const MusicPlayer = () => {
   const { currentSong, isPlaying, setIsPlaying, songQueue, setCurrentSong } = usePlayer();
   const [volume, setVolume] = useState(0.5); // Default volume: 50%
+  const [isMuted, setIsMuted] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [sound, setSound] = useState(null);
@@ -21,7 +22,7 @@ const MusicPlayer = () => {
       const newSound = new Howl({
         src: [`http://localhost:5000/${currentSong.filePath}`], // Ensure the correct URL
         html5: true,
-        volume,
+        volume: isMuted ? 0 : volume,
         onplay: () => {
           setDuration(newSound.duration());
         },
@@ -48,9 +49,9 @@ const MusicPlayer = () => {
 
   useEffect(() => {
     if (sound) {
-      sound.volume(volume);
+      sound.volume(isMuted ? 0 : volume);
     }
-  }, [volume, sound]);
+  }, [volume, sound, isMuted]);
 
   useEffect(() => {
     if (sound) {
@@ -76,6 +77,12 @@ const MusicPlayer = () => {
   const changeVolume = (e) => {
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
+    setIsMuted(newVolume === 0);
+  };
+
+  // Toggle mute
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
   };
 
   // Seek to a specific position
@@ -195,7 +202,9 @@ const MusicPlayer = () => {
         </div>
       </div>
       <div className="flex items-center">
-        <FaVolumeUp className="text-blue-800 mr-2" />
+        <button onClick={toggleMute} className="text-2xl p-4 rounded-full bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 shadow-xl transform transition-transform hover:scale-125 hover:text-white mr-2">
+          {isMuted ? <FaVolumeMute className="transition-colors duration-300" /> : <FaVolumeUp className="transition-colors duration-300" />}
+        </button>
         <input
           type="range"
           min="0"
@@ -204,7 +213,7 @@ const MusicPlayer = () => {
           value={volume}
           onChange={changeVolume}
           className="w-24 h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
-          style={{ background: 'linear-gradient(to right, #4caf50, #2196f3, #ff5722)' }}
+          style={{ background: 'linear-gradient(to right, #d3d3d3, #a9a9a9, #696969)' }}
         />
       </div>
     </div>
