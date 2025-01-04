@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { FaPlay, FaPause } from "react-icons/fa";
 import { usePlayer } from "../context/PlayerContext";
@@ -24,7 +24,7 @@ const Playlist = () => {
   const [filters, setFilters] = useState({ mood: "", tags: "", startDate: "", endDate: "" });
   const [playlist, setPlaylist] = useState([]);
   const [showQueue, setShowQueue] = useState(false);
-  const { currentSong, setCurrentSong, isPlaying, setIsPlaying, setSongQueue } = usePlayer();
+  const { currentSong, setCurrentSong, isPlaying, setIsPlaying, setSongQueue, songQueue } = usePlayer();
 
   const handleChange = (selectedOption, actionMeta) => {
     setFilters({ ...filters, [actionMeta.name]: selectedOption.value });
@@ -46,6 +46,10 @@ const Playlist = () => {
       setIsPlaying(true);
     }
   };
+
+  useEffect(() => {
+    fetchPlaylist();
+  }, []);
 
   return (
     <div className="p-8 bg-blue-100 min-h-screen flex flex-col items-center relative">
@@ -100,42 +104,40 @@ const Playlist = () => {
       </div>
       {playlist.length > 0 && (
         <div className="flex justify-center w-full max-w-6xl relative">
-          <div className="flex justify-center w-full max-w-2xl">
-            <div className="relative w-full">
-              <button
-                onClick={() => setShowQueue(!showQueue)}
-                className="absolute top-0 right-0 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
-                {showQueue ? "Hide Queue" : "Show Queue"}
-              </button>
-              <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-                <h3 className="text-2xl font-bold text-blue-800 mb-4 text-center">Playlist</h3>
-                <ul className="space-y-4">
-                  {playlist.map((song) => (
-                    <li
-                      key={song._id}
-                      className="bg-white p-4 rounded-lg shadow-md cursor-pointer relative group"
-                      onClick={() => handlePlayPause(song)}
-                    >
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="text-lg font-bold text-blue-800">{song.name}</p>
-                          <p className="text-sm text-blue-600">by {song.artist}</p>
-                        </div>
-                        <button
-                          className="text-blue-800 text-2xl absolute right-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handlePlayPause(song);
-                          }}
-                        >
-                          {currentSong && currentSong._id === song._id && isPlaying ? <FaPause /> : <FaPlay />}
-                        </button>
+          <div className="relative w-full max-w-2xl">
+            <button
+              onClick={() => setShowQueue(!showQueue)}
+              className="absolute top-0 right-0 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              {showQueue ? "Hide Queue" : "Show Queue"}
+            </button>
+            <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+              <h3 className="text-2xl font-bold text-blue-800 mb-4 text-center">Playlist</h3>
+              <ul className="space-y-4">
+                {playlist.map((song) => (
+                  <li
+                    key={song._id}
+                    className="bg-white p-4 rounded-lg shadow-md cursor-pointer relative group"
+                    onClick={() => handlePlayPause(song)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-lg font-bold text-blue-800">{song.name}</p>
+                        <p className="text-sm text-blue-600">by {song.artist}</p>
                       </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                      <button
+                        className="text-blue-800 text-2xl absolute right-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePlayPause(song);
+                        }}
+                      >
+                        {currentSong && currentSong._id === song._id && isPlaying ? <FaPause /> : <FaPlay />}
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
           {showQueue && (
