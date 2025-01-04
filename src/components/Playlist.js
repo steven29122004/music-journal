@@ -103,14 +103,16 @@ const Playlist = () => {
       {isPlaylistGenerated && playlist.length > 0 && (
         <div className="flex justify-center w-full max-w-6xl relative">
           <div className="relative w-full max-w-2xl">
-            <button
-              onClick={() => setShowQueue(!showQueue)}
-              className="absolute top-0 right-0 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              {showQueue ? "Hide Queue" : "Show Queue"}
-            </button>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-2xl font-bold text-blue-800">Playlist</h3>
+              <button
+                onClick={() => setShowQueue(!showQueue)}
+                className="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-4 py-2 rounded-full shadow-lg hover:from-blue-600 hover:to-blue-800 transition duration-300 transform hover:scale-105 z-10"
+              >
+                {showQueue ? "Hide Queue" : "Show Queue"}
+              </button>
+            </div>
             <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-              <h3 className="text-2xl font-bold text-blue-800 mb-4 text-center">Playlist</h3>
               <ul className="space-y-4">
                 {playlist.map((song) => (
                   <li
@@ -138,14 +140,16 @@ const Playlist = () => {
               </ul>
             </div>
           </div>
-          {showQueue && (
-            <div className="ml-8 w-1/4 transition-opacity duration-300">
-              <div className="bg-white p-4 rounded-lg shadow-md">
-                <h3 className="text-xl font-bold text-blue-800 mb-4 text-center">Song Queue</h3>
-                <SongQueue />
-              </div>
+          <div
+            className={`ml-8 w-1/4 transition-opacity duration-500 ease-in-out ${
+              showQueue ? "opacity-100 visible" : "opacity-0 invisible"
+            }`}
+          >
+            <div className="bg-white p-4 rounded-lg shadow-md">
+              <h3 className="text-xl font-bold text-blue-800 mb-4 text-center">Song Queue</h3>
+              <SongQueue />
             </div>
-          )}
+          </div>
         </div>
       )}
     </div>
