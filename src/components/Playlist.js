@@ -102,7 +102,7 @@ const Playlist = () => {
       </div>
       {isPlaylistGenerated && playlist.length > 0 && (
         <div className="flex justify-center w-full max-w-6xl relative">
-          <div className="relative w-full max-w-2xl">
+          <div className="flex flex-col w-full max-w-2xl">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-2xl font-bold text-blue-800">Playlist</h3>
               <button
@@ -140,16 +140,14 @@ const Playlist = () => {
               </ul>
             </div>
           </div>
-          <div
-            className={`ml-8 w-1/4 transition-opacity duration-500 ease-in-out ${
-              showQueue ? "opacity-100 visible" : "opacity-0 invisible"
-            }`}
-          >
-            <div className="bg-white p-4 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold text-blue-800 mb-4 text-center">Song Queue</h3>
-              <SongQueue />
+          {showQueue && (
+            <div className="flex flex-col w-full max-w-xs ml-8">
+              <div className="bg-white p-4 rounded-lg shadow-md">
+                <h3 className="text-xl font-bold text-blue-800 mb-4 text-center">Song Queue</h3>
+                <SongQueue />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
