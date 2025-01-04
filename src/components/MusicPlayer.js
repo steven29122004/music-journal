@@ -10,6 +10,7 @@ const MusicPlayer = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [sound, setSound] = useState(null);
   const [isShuffle, setIsShuffle] = useState(false);
+  const [shuffledQueue, setShuffledQueue] = useState([]);
   const [repeatMode, setRepeatMode] = useState(0); // 0: No repeat, 1: Repeat all, 2: Repeat one
 
   useEffect(() => {
@@ -86,26 +87,30 @@ const MusicPlayer = () => {
 
   // Handle previous song
   const handlePrevious = () => {
-    const currentIndex = songQueue.findIndex(song => song._id === currentSong._id);
+    const currentIndex = (isShuffle ? shuffledQueue : songQueue).findIndex(song => song._id === currentSong._id);
     if (currentIndex > 0) {
-      setCurrentSong(songQueue[currentIndex - 1]);
+      setCurrentSong((isShuffle ? shuffledQueue : songQueue)[currentIndex - 1]);
       setIsPlaying(true);
     }
   };
 
   // Handle next song
   const handleNext = () => {
-    const currentIndex = songQueue.findIndex(song => song._id === currentSong._id);
-    if (currentIndex < songQueue.length - 1) {
-      setCurrentSong(songQueue[currentIndex + 1]);
+    const currentIndex = (isShuffle ? shuffledQueue : songQueue).findIndex(song => song._id === currentSong._id);
+    if (currentIndex < (isShuffle ? shuffledQueue : songQueue).length - 1) {
+      setCurrentSong((isShuffle ? shuffledQueue : songQueue)[currentIndex + 1]);
+      setIsPlaying(true);
+    } else if (repeatMode === 1) {
+      setCurrentSong((isShuffle ? shuffledQueue : songQueue)[0]);
       setIsPlaying(true);
     }
   };
 
   const handleShuffleToggle = () => {
     setIsShuffle(!isShuffle);
-    if (isShuffle) {
-      setRepeatMode(0);
+    if (!isShuffle) {
+      const shuffled = [...songQueue].sort(() => Math.random() - 0.5);
+      setShuffledQueue(shuffled);
     }
   };
 
