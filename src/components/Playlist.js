@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Select from "react-select";
 import { FaPlay, FaPause } from "react-icons/fa";
 import { usePlayer } from "../context/PlayerContext";
@@ -24,7 +24,8 @@ const Playlist = () => {
   const [filters, setFilters] = useState({ mood: "", tags: "", startDate: "", endDate: "" });
   const [playlist, setPlaylist] = useState([]);
   const [showQueue, setShowQueue] = useState(false);
-  const { currentSong, setCurrentSong, isPlaying, setIsPlaying, setSongQueue, songQueue } = usePlayer();
+  const [isPlaylistGenerated, setIsPlaylistGenerated] = useState(false);
+  const { currentSong, setCurrentSong, isPlaying, setIsPlaying, setSongQueue } = usePlayer();
 
   const handleChange = (selectedOption, actionMeta) => {
     setFilters({ ...filters, [actionMeta.name]: selectedOption.value });
@@ -36,6 +37,7 @@ const Playlist = () => {
     const data = await response.json();
     setPlaylist(data);
     setSongQueue(data); // Set the song queue
+    setIsPlaylistGenerated(true); // Set the flag to true to show the playlist
   };
 
   const handlePlayPause = (song) => {
@@ -46,10 +48,6 @@ const Playlist = () => {
       setIsPlaying(true);
     }
   };
-
-  useEffect(() => {
-    fetchPlaylist();
-  }, []);
 
   return (
     <div className="p-8 bg-blue-100 min-h-screen flex flex-col items-center relative">
@@ -102,7 +100,7 @@ const Playlist = () => {
           Generate Playlist
         </button>
       </div>
-      {playlist.length > 0 && (
+      {isPlaylistGenerated && playlist.length > 0 && (
         <div className="flex justify-center w-full max-w-6xl relative">
           <div className="relative w-full max-w-2xl">
             <button
