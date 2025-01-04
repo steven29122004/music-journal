@@ -4,7 +4,7 @@ import { FaPlay, FaPause, FaVolumeUp, FaStepBackward, FaStepForward, FaRandom, F
 import { usePlayer } from "../context/PlayerContext";
 
 const MusicPlayer = () => {
-  const { currentSong, isPlaying, setIsPlaying } = usePlayer();
+  const { currentSong, isPlaying, setIsPlaying, songQueue, setCurrentSong } = usePlayer();
   const [volume, setVolume] = useState(0.5); // Default volume: 50%
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -28,8 +28,7 @@ const MusicPlayer = () => {
           if (repeatMode === 2) {
             newSound.play();
           } else {
-            setIsPlaying(false);
-            setCurrentTime(0);
+            handleNext();
           }
         },
         onloaderror: (id, error) => {
@@ -85,13 +84,22 @@ const MusicPlayer = () => {
     if (sound) sound.seek(seekTime);
   };
 
-  // Placeholder functions for previous and next buttons
+  // Handle previous song
   const handlePrevious = () => {
-    // Implement previous song logic
+    const currentIndex = songQueue.findIndex(song => song._id === currentSong._id);
+    if (currentIndex > 0) {
+      setCurrentSong(songQueue[currentIndex - 1]);
+      setIsPlaying(true);
+    }
   };
 
+  // Handle next song
   const handleNext = () => {
-    // Implement next song logic
+    const currentIndex = songQueue.findIndex(song => song._id === currentSong._id);
+    if (currentIndex < songQueue.length - 1) {
+      setCurrentSong(songQueue[currentIndex + 1]);
+      setIsPlaying(true);
+    }
   };
 
   const handleShuffleToggle = () => {
