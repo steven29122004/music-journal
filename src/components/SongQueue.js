@@ -3,7 +3,7 @@ import { usePlayer } from "../context/PlayerContext";
 import Wavify from "react-wavify";
 
 const SongQueue = () => {
-  const { songQueue, currentSong } = usePlayer();
+  const { songQueue, currentSong, isPlaying } = usePlayer();
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg mt-4 text-gray-900">
@@ -17,12 +17,12 @@ const SongQueue = () => {
             <div className="w-16 h-16 ml-4 relative">
               <Wavify
                 fill="#3b82f6"
-                paused={false}
+                paused={!isPlaying}
                 options={{
-                  height: 3, // Reduced height for minimalism
-                  amplitude: 15, // Lower amplitude for a more subtle effect
-                  speed: 0.2, // Adjust speed for a smoother wave
-                  points: 4 // Fewer points for a cleaner look
+                  height: 3,
+                  amplitude: 15,
+                  speed: 0.2,
+                  points: 4,
                 }}
                 className="absolute bottom-0 left-0 w-full h-full"
               />
