@@ -76,8 +76,8 @@ const Calendar = ({ daysWithSongs }) => {
               >
                 {day && (
                   <>
-                    {daysWithSongs.includes(day) && (
-                      <div className="absolute h-12 w-12 border-2 border-white rounded-full opacity-30"></div>
+                    {(
+                      <div className="absolute h-12 w-12 border-2 border-white rounded-full opacity-0"></div>
                     )}
                     <span className={`text-2xl font-semibold ${idx % 7 === 0 ? "text-red" : idx % 7 === 6 ? "text-[#51EEFC]" : ""}`}>{day}</span>
                   </>

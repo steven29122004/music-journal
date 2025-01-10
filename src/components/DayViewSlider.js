@@ -1,14 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import SongModal from "./SongModal";
+import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 
 const DayViewSlider = ({ selectedDay, songs, onClose, onAdd, currentDate, onEdit, onDelete }) => {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
-  const [localSongs, setLocalSongs] = useState(songs);
+  const [localSongs, setLocalSongs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [selectedMood, setSelectedMood] = useState("");
+  const [selectedTags, setSelectedTags] = useState([]);
+
+  // Fetch songs for the selected day whenever the day changes
+  useEffect(() => {
+    const fetchSongsForDay = async () => {
+      setLoading(true);
+      setError("");
+      if (!selectedDay) return;
+
+      // Format the selected date
+      const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}-${selectedDay.toString().padStart(2, "0")}`;
+
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/songs/getSongs?date=${formattedDate}&mood=${selectedMood}&tags=${selectedTags.join(",")}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch songs.");
+        const data = await response.json();
+        setLocalSongs(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSongsForDay();
+  }, [selectedDay, currentDate, selectedMood, selectedTags]);
 
   // Function to open Add Song Modal
   const openAddModal = () => {
+    const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${selectedDay.toString().padStart(2, "0")}`;
+
     setModalData({
       name: "",
       artist: "",
@@ -16,9 +55,7 @@ const DayViewSlider = ({ selectedDay, songs, onClose, onAdd, currentDate, onEdit
       tags: "",
       journal: "",
       file: null,
-      date: `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
-        .toString()
-        .padStart(2, "0")}-${selectedDay.toString().padStart(2, "0")}`,
+      date: formattedDate, // Use the selected date
     });
     setIsModalOpen(true);
   };
@@ -43,6 +80,11 @@ const DayViewSlider = ({ selectedDay, songs, onClose, onAdd, currentDate, onEdit
     } catch (error) {
       console.error("Error deleting song:", error);
     }
+  };
+
+  // Navigate to the player page with only the selected song (no playlist)
+  const handlePlaySong = (song) => {
+    navigate("/player", { state: { song, playlist: [] } });
   };
 
   return (
@@ -78,7 +120,7 @@ const DayViewSlider = ({ selectedDay, songs, onClose, onAdd, currentDate, onEdit
               <button className="text-red" onClick={() => handleDeleteSong(song._id)}>
                 Delete
               </button>
-              <button className="text-green-400" onClick={() => console.log("Playing song:", song)}>
+              <button className="text-green-400" onClick={() => handlePlaySong(song)}>
                 Play
               </button>
             </div>
@@ -116,6 +158,24 @@ const DayViewSlider = ({ selectedDay, songs, onClose, onAdd, currentDate, onEdit
       )}
     </motion.div>
   );
+};
+
+DayViewSlider.propTypes = {
+  selectedDay: PropTypes.number.isRequired,
+  songs: PropTypes.arrayOf(PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    artist: PropTypes.string.isRequired,
+    mood: PropTypes.string.isRequired,
+    tags: PropTypes.string.isRequired,
+    journal: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
+  })).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onAdd: PropTypes.func.isRequired,
+  currentDate: PropTypes.instanceOf(Date).isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 export default DayViewSlider;

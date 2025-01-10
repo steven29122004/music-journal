@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Howl } from "howler";
-import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute, FaStepBackward, FaStepForward, FaRandom, FaSyncAlt, FaRedoAlt } from "react-icons/fa";
+import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute, FaStepBackward, FaStepForward, FaRandom, FaSyncAlt, FaRedoAlt, FaListUl } from "react-icons/fa";
 import { usePlayer } from "../context/PlayerContext";
+import { motion, AnimatePresence } from "framer-motion";
 
-const MusicPlayer = () => {
-  const { currentSong, isPlaying, setIsPlaying, songQueue, setCurrentSong } = usePlayer();
+
+  const MusicPlayer = () => {
+    const {
+      currentSong,
+      isPlaying,
+      setIsPlaying,
+      songQueue,
+      setCurrentSong
+    } = usePlayer();
   const [volume, setVolume] = useState(0.5); // Default volume: 50%
   const [isMuted, setIsMuted] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -13,6 +21,7 @@ const MusicPlayer = () => {
   const [isShuffle, setIsShuffle] = useState(false);
   const [shuffledQueue, setShuffledQueue] = useState([]);
   const [repeatMode, setRepeatMode] = useState(0); // 0: No repeat, 1: Repeat all, 2: Repeat one
+  const [showQueue, setShowQueue] = useState(false);
 
   useEffect(() => {
     if (currentSong) {
@@ -20,7 +29,7 @@ const MusicPlayer = () => {
         sound.unload();
       }
       const newSound = new Howl({
-        src: [`http://localhost:5000/${currentSong.filePath}`], // Ensure the correct URL
+        src: [`http://localhost:5000/${currentSong.filePath}`],
         html5: true,
         volume: isMuted ? 0 : volume,
         onplay: () => {
@@ -32,12 +41,6 @@ const MusicPlayer = () => {
           } else {
             handleNext();
           }
-        },
-        onloaderror: (id, error) => {
-          console.error("Load error", error);
-        },
-        onplayerror: (id, error) => {
-          console.error("Play error", error);
         }
       });
       setSound(newSound);
@@ -62,6 +65,9 @@ const MusicPlayer = () => {
       }
     }
   }, [isPlaying, sound]);
+
+
+  
 
   // Update current playback time
   useEffect(() => {
@@ -134,7 +140,7 @@ const MusicPlayer = () => {
     <div className="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-md flex items-center justify-between">
       <div className="flex items-center">
         <img
-          src="https://via.placeholder.com/100"
+          src={`http://localhost:5000/${currentSong.imagePath}` || "/placeholder.png"}
           alt="Song"
           className="w-16 h-16 rounded-lg mr-4"
         />
@@ -144,6 +150,7 @@ const MusicPlayer = () => {
         </div>
       </div>
       <div className="flex items-center flex-grow flex-col justify-center">
+
         <div className="flex items-center mb-2">
           <button 
             onClick={handleShuffleToggle} 
@@ -151,24 +158,28 @@ const MusicPlayer = () => {
           >
             <FaRandom className="transition-colors duration-300" />
           </button>
+
           <button
             onClick={handlePrevious}
             className="text-2xl p-4 rounded-full bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 shadow-xl transform transition-transform hover:scale-125 hover:text-white mr-2"
           >
             <FaStepBackward className="transition-colors duration-300" />
           </button>
+
           <button
             onClick={() => setIsPlaying(!isPlaying)}
             className="text-2xl p-4 rounded-full bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 shadow-xl transform transition-transform hover:scale-125 hover:text-white mx-2"
           >
             {isPlaying ? <FaPause className="transition-colors duration-300" /> : <FaPlay className="transition-colors duration-300" />}
           </button>
+
           <button
             onClick={handleNext}
             className="text-2xl p-4 rounded-full bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 shadow-xl transform transition-transform hover:scale-125 hover:text-white ml-2"
           >
             <FaStepForward className="transition-colors duration-300" />
           </button>
+
           <button 
             onClick={handleRepeatToggle} 
             className={`text-2xl p-4 rounded-full ${repeatMode > 0 ? 'bg-yellow-500' : 'bg-gradient-to-r from-green-400 via-blue-500 to-purple-600'} shadow-xl transform transition-transform hover:scale-125 hover:text-white ml-2 relative`}
@@ -182,7 +193,15 @@ const MusicPlayer = () => {
               <FaSyncAlt className="transition-colors duration-300" />
             )}
           </button>
+
+          <button
+          onClick={() => setShowQueue(!showQueue)}
+          className="text-2xl p-4 rounded-full bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 shadow-xl transform transition-transform hover:scale-125 hover:text-white ml-2"
+        >
+          <FaListUl />
+        </button>
         </div>
+
         <div className="flex items-center w-full justify-center">
           <span className="text-blue-800 mr-2">{formatTime(currentTime)}</span>
           <div className="relative w-3/4 mx-2">
@@ -216,6 +235,32 @@ const MusicPlayer = () => {
           style={{ background: 'linear-gradient(to right, #d3d3d3, #a9a9a9, #696969)' }}
         />
       </div>
+      <AnimatePresence>
+        {showQueue && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="fixed top-0 bottom-0 right-0 w-82 shadow-xl bg-gradient-to-l from-blue-100 to-blue-600 p-4 overflow-y-auto"
+          >
+            <h3 className="text-4xl font-bold text-white mb-3">Playlist</h3>
+            <ul>
+              {songQueue.map((song, index) => (
+                <li
+                  key={song._id}
+                  className={`p-2 text-lg ${
+                    currentSong._id === song._id ? "font-bold bg-opacity-0 bg-white rounded-lg mt-2 text-white text-xl" : ""
+                  } hover:bg-opacity-30 cursor-pointer`}
+                  onClick={() => setCurrentSong(song)}
+                >
+                  {index + 1}. {song.name} - {song.artist}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

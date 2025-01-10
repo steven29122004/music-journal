@@ -1,15 +1,21 @@
-import React, { useState } from "react";
+import React from "react";
 import Playlist from "../components/Playlist";
-import SongQueue from "../components/SongQueue";
+import PlayerPage from "./PlayerPage";
+import { usePlayer } from "../context/PlayerContext";
 
 const PlaylistPage = () => {
-  const [showQueue, setShowQueue] = useState(false);
+  const { setCurrentSong, setIsPlaying, setIsPlayerExpanded } = usePlayer();
+
+  const handlePlaySong = (song) => {
+    setCurrentSong(song);
+    setIsPlaying(true);
+    setIsPlayerExpanded(true); // Expand the player
+  };
 
   return (
-    <div>
-      <h1>Playlist Management</h1>
-      <Playlist />
-      {showQueue && <SongQueue />}
+    <div className="relative">
+      <Playlist onPlaySong={handlePlaySong} />
+      <PlayerPage />
     </div>
   );
 };
