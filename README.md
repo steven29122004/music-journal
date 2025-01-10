@@ -18,4 +18,4 @@ Core features are done, alot of bug fixing are required.
 2. npm i
 3. npm start
 
-Run both at the same time still missing feature but the player is working properly if you use Postman
+Run both at the same time still missing feature but the player is working properly if you use Postman.
